@@ -123,10 +123,10 @@ config t
 int lo 0
 ip add 3.3.3.3 255.255.255.255
 router ospf 1
-router-id _______
-network _______ _______ area __
-network _______ _______ area __
-network _______ _______ area __
+router-id 3.3.3.3
+network 3.3.3.3 0.0.0.0 area 0
+network 10.1.1.4 0.0.0.3 area 0
+network 10.1.1.8 0.0.0.3 area 34
 do sh ip protocol
 @@2:
 config t
@@ -153,9 +153,17 @@ int lo 0
 ip add 1.1.1.1 255.255.255.255
 router ospf 1
 router-id 1.1.1.1
-network _______ _______ area __
-network _______ _______ area __
+network 10.1.1.0 0.0.0.3 area 12
+network 1.1.1.1 0.0.0.0 area 12
 
+#OSPF to EIGRP Redistri: 0E2
+@r4:
+conf t
+router eigrp 100
+redistribute ospf 1 metric 10000 100 255 1 1500
+exit
+router ospf 1
+redistribute eigrp 100 subnets
 
 do sh ip protocol
 show ip ospf neighbor
@@ -176,13 +184,13 @@ config t
 no router bgp 1
 router bgp 1
 bgp log-neighbor-changes
-neighbor _________ remote-as __
-neighbor _________ remote-as __
+neighbor 208.7.7.2 remote-as 2
+neighbor 208.9.9.3 remote-as 3
 neighbor 208.8.8.4 Remote-as 45
 network 10.1.1.0 Mask 255.255.255.252
-network __________ mask __________
-network __________ mask __________
-network __________ mask __________
+network 209.9.9.0 mask 255.255.255.0
+network 207.7.7.0 mask 255.255.255.0
+network 208.8.8.0 mask 255.255.255.0
 do sh ip bgp summary
 
 @@Isp3:
@@ -191,6 +199,9 @@ no router bgp 3
 router bgp 3
 neighbor 32.3.2.2 remote-as 2
 neighbor 35.3.5.5 remote-as 45
+address-family ipv4
+neighbor 32.3.2.2 activate
+neighbor 35.3.5.5 activate
 neighbor 209.9.9.1 remote-as 1
 network 32.3.2.0 mask 255.255.255.0
 network 33.33.33.33 mask 255.255.255.255
@@ -206,10 +217,15 @@ end
 config t
 router bgp 2
 bgp log-neighbor-changes
-neighbor _________ remote-as __
-neighbor _________ remote-as __
-neighbor _________ remote-as __
-neighbor _________ remote-as __
+neighbor 25.2.5.5 remote-as 45
+neighbor 32.3.2.3 remote-as 3
+neighbor 24.2.4.2 remote-as 45
+neighbor 207.7.7.1 remote-as 1
+address-family ipv4
+neighbor 25.2.5.5 activate
+neighbor 32.3.2.3 activate
+neighbor 24.2.4.2 activate
+neighbor 207.7.7.1 activate
 network 22.22.22.22 mask 255.255.255.255
 network 24.2.4.0 mask 255.255.255.0
 network 25.2.5.0 mask 255.255.255.0
