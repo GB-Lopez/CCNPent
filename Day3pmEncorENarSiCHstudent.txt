@@ -274,7 +274,7 @@ TASK11: pUT bgp routes in OSPF:
 R1:
 config t
 router ospf 1
-_________________  _________
+default-information originate 
 @r4
 ping 8.8.8.8
 
@@ -335,6 +335,7 @@ OR make it more elaborate:
 config t
 ip access-list extended p1tod2
  permit ip host 10.2.1.101 any
+ 20 permit ip host 10.2.1.102 any
  exit
 no route-map RMHOPD2
 route-map RMHOPD2 permit 10
@@ -406,8 +407,14 @@ config t
 int e1/1
  ip ospf priority 255
 int e1/2
- ip _____ ____  ___
+ ip ospf priority 255
 end
+@extra exam task patalo si R4
+conf t
+int e1/2
+ ip ospf priority 0
+end
+
 
 @r2:
 clear ip ospf process
@@ -464,8 +471,7 @@ R2:
 config t
 no ip prefix-list TEST1
 ip prefix-list TEST1 seq 5 deny 11.1.1.1/32
-ip prefix-list TEST1 seq 10 deny 111.1.1.1/32
-ip prefix-list TEST1 seq 15 permit 0.0.0.0/0 le 32
+ip prefix-list TEST1 seq 10 permit 0.0.0.0/0 le 32
 router ospf 1
  area 0 filter-list prefix TEST1 in
 end
@@ -517,6 +523,7 @@ config t
 ip subnet-zero
 route-map CON
  match interface lo 11
+exit
 int lo 11
  ip add 11.11.11.11 255.255.255.255
 no router ospf 1
@@ -625,6 +632,8 @@ in a Totally Stubby area, No OIA, OE2 only O*IA and O
 
 BUT THEN YOU REALIZE THAT AREA 34 AND R4 HAS EIGRP ON IT! OH SYET!!
 
+NOT SO STUBBY AREA/ DI PALA DULONG DULO
+
 r3:
 !Cisco Proprietary
 config t
@@ -674,7 +683,7 @@ O        3.3.3.3 [110/11] via 10.1.1.9, 00:00:57, Ethernet1/2
 O IA     10.1.1.0/30 [110/30] via 10.1.1.9, 00:00:47, Ethernet1/2
 O IA     10.1.1.4/30 [110/20] via 10.1.1.9, 00:00:47, Ethernet1/2
 
-R3:
+R3: TOTALLY NOT SO STUBBY AREA/TNSSA/SOBRANG DI PA PALA DULONG DULO
 config t
  router ospf 1
   area 34 nssa default-information-originate
@@ -692,7 +701,7 @@ O IA     10.1.1.0/30 [110/30] via 10.1.1.9, 00:01:34, Ethernet1/2
 O IA     10.1.1.4/30 [110/20] via 10.1.1.9, 00:01:34, Ethernet1/2
 
 ON all ABRs, we do:
-R3:
+R3: 
 config t
  router ospf 1
   area 34 nssa no-summary
@@ -741,7 +750,7 @@ route summarization in ASBR and ABR:
 R4:
 config t
 route-map TST
- match interface lo040 lo41 lo42 lo43
+ match interface lo40 lo41 lo42 lo43
 no int lo4
 int lo 40
  ip add 4.4.0.4 255.255.255.255
@@ -776,10 +785,10 @@ O        4.4.5.0/24 [110/11] via 10.1.1.10, 00:00:24, Ethernet1/2
 O        4.4.6.0/24 [110/11] via 10.1.1.10, 00:00:24, Ethernet1/2
 
 R4:
-
-R4(config-router)#router ospf 1
-R4(config-router)# summary-address 4.4.0.0 255.255.252.0
-R4(config-router)#do sr os | inc Null
+conf t
+router ospf 1
+summary-address 4.4.0.0 255.255.252.0
+o sr os | inc Null
 O        4.4.0.0/22 is a summary, 00:00:21, Null0
 R4(config-router)#
 
